@@ -1,6 +1,7 @@
 use std::ops::Not;
 
 use anyhow::{anyhow, Result};
+use atty::Stream;
 use clap::{CommandFactory, Parser, ValueEnum};
 use clap::error::ErrorKind;
 use inquire::{Confirm, MultiSelect};
@@ -48,10 +49,19 @@ pub struct Cli {
     force_copy: bool,
 }
 
+impl Cli {
+    pub fn new() -> Cli {
+        if atty::isnt(Stream::Stdin) {
+            println!("Terminal is not interactive, -i/--interactive won't take effect")
+        }
+
+        Cli::parse()
+    }
+}
 
 impl Cli {
     pub fn is_interactive(&self) -> bool {
-        self.interactive
+        atty::is(Stream::Stdin) && self.interactive
     }
 
     pub fn should_force_copy(&self) -> bool {

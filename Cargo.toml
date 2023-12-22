@@ -9,5 +9,6 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.76"
+atty = "0.2.14"
 clap = { version = "4.4.11", features = ["derive", "env"] }
 inquire = "0.6.2"

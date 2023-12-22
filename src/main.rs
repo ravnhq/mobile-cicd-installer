@@ -1,10 +1,9 @@
-use clap::Parser;
 use crate::cli::Cli;
 
 mod cli;
 
 fn main() {
-    let cli = Cli::parse();
+    let cli = Cli::new();
     let platforms = cli.get_platforms();
     let _ = cli.should_copy_github_workflow();
     let _ = cli.should_copy_fastlane();
