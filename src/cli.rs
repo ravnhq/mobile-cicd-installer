@@ -1,4 +1,6 @@
+use std::borrow::Cow;
 use std::ops::Not;
+use std::path::{Path, PathBuf};
 
 use anyhow::{anyhow, Result};
 use atty::Stream;
@@ -33,6 +35,9 @@ pub struct Cli {
     #[arg(short, long)]
     interactive: bool,
 
+    #[arg(short, long)]
+    destination: Option<PathBuf>,
+
     #[arg(short, long, value_enum)]
     platform: Option<Platform>,
 
@@ -66,6 +71,13 @@ impl Cli {
 
     pub fn should_force_copy(&self) -> bool {
         self.force_copy
+    }
+
+    pub fn get_destination(&self) -> Result<Cow<Path>> {
+        match &self.destination {
+            Some(path) => Ok(Cow::Borrowed(path.as_path())),
+            None => Ok(Cow::Owned(std::env::current_dir()?)),
+        }
     }
 
     pub fn get_platforms(&self) -> Result<Vec<Platform>> {
