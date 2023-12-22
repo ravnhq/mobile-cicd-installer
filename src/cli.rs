@@ -1,8 +1,10 @@
+use std::ops::Not;
+
+use anyhow::{anyhow, Result};
 use clap::{CommandFactory, Parser, ValueEnum};
 use clap::error::ErrorKind;
-use anyhow::{anyhow, Result};
+use inquire::{Confirm, MultiSelect};
 use inquire::list_option::ListOption;
-use inquire::MultiSelect;
 use inquire::validator::Validation;
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, PartialEq, Eq, ValueEnum)]
@@ -41,12 +43,23 @@ pub struct Cli {
 
     #[arg(long)]
     uses_cocoapods: bool,
+
+    #[arg(short, long)]
+    force_copy: bool,
 }
 
 
 impl Cli {
+    pub fn is_interactive(&self) -> bool {
+        self.interactive
+    }
+
+    pub fn should_force_copy(&self) -> bool {
+        self.force_copy
+    }
+
     pub fn get_platforms(&self) -> Result<Vec<Platform>> {
-        if self.interactive {
+        if self.is_interactive() {
             let options = vec!["Android", "iOS"];
             let platforms = MultiSelect::new("Select the platforms to configure:", options)
                 .with_validator(|values: &[ListOption<&&str>]| {
@@ -72,4 +85,41 @@ impl Cli {
                 .exit()
         }
     }
+
+    pub fn should_copy_fastlane(&self) -> Result<bool> {
+        if self.is_interactive() {
+            let answer = Confirm::new("Copy fastlane configuration files?")
+                .with_default(true)
+                .prompt()?;
+
+            Ok(answer)
+        } else {
+            Ok(self.skip_fastlane.not())
+        }
+    }
+
+    pub fn should_copy_github_workflow(&self) -> Result<bool> {
+        if self.is_interactive() {
+            let answer = Confirm::new("Copy GitHub workflow?")
+                .with_default(false)
+                .prompt()?;
+
+            Ok(answer)
+        } else {
+            Ok(self.copy_github_workflow)
+        }
+    }
+
+    pub fn should_configure_cocoapods(&self) -> Result<bool> {
+        if self.is_interactive() {
+            let answer = Confirm::new("Configure Cocoapods?")
+                .with_default(false)
+                .prompt()?;
+
+            Ok(answer)
+        } else {
+            Ok(self.uses_cocoapods)
+        }
+    }
 }
+
