@@ -1,3 +1,11 @@
+use clap::Parser;
+use crate::cli::Cli;
+
+mod cli;
+
 fn main() {
-    println!("Hello, world!");
+    let cli = Cli::parse();
+    let platforms = cli.get_platforms();
+
+    println!("{:?}", platforms);
 }
