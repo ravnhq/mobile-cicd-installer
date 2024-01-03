@@ -28,5 +28,7 @@ release-linux: install-cross
 [linux]
 release-linux:
   cargo build --release --target x86_64-unknown-linux-musl
+  mkdir -p build
+  cp target/x86_64-unknown-linux-musl/release/ravn-mobile-cicd-installer build/installer-linux
 
 
