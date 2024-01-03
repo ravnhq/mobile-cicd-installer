@@ -2,7 +2,37 @@
 
 ## Running
 
-TODO: Add after release
+Running the following commands will download a copy of the installer, ready to be run as `installer`.
+
+### Download 
+
+#### macOS
+
+```shell
+curl -sL https://github.com/ravnhq/mobile-cicd-installer/releases/download/0.1.0/installer-macos -o installer \
+  && chmod +x installer
+```
+
+#### Linux
+
+```shell
+curl -sL https://github.com/ravnhq/mobile-cicd-installer/releases/download/0.1.0/installer-linux -o installer \
+  && chmod +x installer
+```
+
+### Executing
+
+Once downloaded just run the following command to start in interactive mode:
+
+```shell
+./installer -i
+```
+
+Or explore more options by running:
+
+```shell
+./installer -h
+```
 
 ## Compiling
 
