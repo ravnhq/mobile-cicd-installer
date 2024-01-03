@@ -5,7 +5,7 @@
 _Refer to the [RAVN Mobile CI/CD](https://github.com/ravnhq/mobile-cicd/) main repository for more information_
 
 ```shell
-curl -s https://raw.githubusercontent.com/ravnhq/mobile-cicd/main/install.sh | sh
+curl -s https://raw.githubusercontent.com/ravnhq/mobile-cicd/main/install.sh | bash
 ```
 
 ## Running
