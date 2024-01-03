@@ -1,5 +1,13 @@
 # RAVN Mobile CI/CD Installer
 
+## Running (the easy way)
+
+_Refer to the [RAVN Mobile CI/CD](https://github.com/ravnhq/mobile-cicd/) main repository for more information_
+
+```shell
+curl -s https://raw.githubusercontent.com/ravnhq/mobile-cicd/main/install.sh | sh
+```
+
 ## Running
 
 Running the following commands will download a copy of the installer, ready to be run as `installer`.
