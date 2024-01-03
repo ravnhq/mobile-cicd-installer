@@ -132,7 +132,7 @@ impl Cli {
 
     pub fn should_copy_github_workflow(&self) -> Result<bool> {
         if self.is_interactive() {
-            let answer = Confirm::new("Copy GitHub workflow?")
+            let answer = Confirm::new("Copy starter GitHub workflow?")
                 .with_default(false)
                 .prompt()?;
 
