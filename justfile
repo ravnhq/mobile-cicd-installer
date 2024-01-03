@@ -14,3 +14,15 @@ release-macos: release-macos-arm release-macos-x86
   lipo -create -output build/installer \
     target/aarch64-apple-darwin/release/ravn-mobile-cicd-installer \
     target/x86_64-apple-darwin/release/ravn-mobile-cicd-installer
+
+# For local build
+install-cross:
+  cargo install cross --git https://github.com/cross-rs/cross
+
+[macos]
+release-linux: install-cross
+  cross build --release --target x86_64-unknown-linux-musl
+
+[linux]
+release-linux:
+  cargo build --release --target x86_64-unknown-linux-musl
