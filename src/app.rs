@@ -173,21 +173,11 @@ impl App {
     }
 
     fn copy_github_workflow(&self, ignored_platforms: &[Platform]) -> Result<()> {
-        if !self.cli.should_copy_github_workflow()? {
-            return Ok(());
-        }
-
         let src = self.repo_dir.join("github/main.yml");
         let dst = self.cli.get_destination()?.join(".github/workflows/main.yml");
 
-        if dst.exists() {
-            let answer = Confirm::new("Replace existing main.yml workflow?")
-                .with_default(false)
-                .prompt()?;
-
-            if !answer {
-                return Ok(());
-            }
+        if !self.cli.should_copy_github_workflow(dst.exists())? {
+            return Ok(());
         }
 
         if let Some(parent) = dst.parent() {

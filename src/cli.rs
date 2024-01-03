@@ -130,9 +130,15 @@ impl Cli {
         }
     }
 
-    pub fn should_copy_github_workflow(&self) -> Result<bool> {
+    pub fn should_copy_github_workflow(&self, already_exists: bool) -> Result<bool> {
         if self.is_interactive() {
-            let answer = Confirm::new("Copy starter GitHub workflow?")
+            let msg = if already_exists {
+                "Replace existing GitHub main.yml workflow?"
+            } else {
+                "Copy starter main.yml GitHub workflow?"
+            };
+
+            let answer = Confirm::new(msg)
                 .with_default(false)
                 .prompt()?;
 
