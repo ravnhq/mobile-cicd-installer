@@ -131,6 +131,7 @@ impl App {
         let src = dst.join("fastlane");
         let dst = dst.join("fastlane.old");
         util::fs::copy_recursively(src, dst)?;
+        log!("Created backup 'fastlane.old', consolidate your files before removing it");
 
         Ok(())
     }
