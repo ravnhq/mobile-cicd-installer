@@ -1,3 +1,5 @@
+use std::io::Write;
+use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
@@ -48,6 +50,7 @@ impl App {
         self.copy_ruby_files()?;
         self.copy_fastlane_files(&ignored_platforms)?;
         self.copy_github_workflow(&ignored_platforms)?;
+        self.configure_platforms(&selected_platforms)?;
 
         Ok(())
     }
@@ -195,6 +198,39 @@ impl App {
 
         std::fs::copy(src, &dst)?;
         self.remove_platform_regions(&[dst], ignored_platforms)?;
+
+        Ok(())
+    }
+
+    fn configure_platforms(&self, platforms: &[Platform]) -> Result<()> {
+        if platforms.contains(&Platform::Ios) {
+            self.configure_cocoapods()?;
+        }
+
+        Ok(())
+    }
+
+    fn configure_cocoapods(&self) -> Result<()> {
+        if !self.cli.should_configure_cocoapods()? {
+            return Ok(());
+        }
+
+        let dst = self.cli.get_destination()?.join("Gemfile");
+        let contents = std::io::read_to_string(File::open(dst.as_path())?)?;
+        let mut output = Vec::new();
+
+        for line in contents.lines() {
+            output.push(line);
+
+            if line.contains("gem 'fastlane'") {
+                output.push("gem 'cocoapods'");
+            }
+        }
+
+        let mut file = File::create(dst)?;
+        for line in output {
+            writeln!(file, "{line}")?;
+        }
 
         Ok(())
     }

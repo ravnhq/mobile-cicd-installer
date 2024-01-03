@@ -144,7 +144,7 @@ impl Cli {
 
     pub fn should_configure_cocoapods(&self) -> Result<bool> {
         if self.is_interactive() {
-            let answer = Confirm::new("Configure Cocoapods?")
+            let answer = Confirm::new("Add support for Cocoapods?")
                 .with_default(false)
                 .prompt()?;
 
