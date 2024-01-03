@@ -1,5 +1,5 @@
-use std::io::Write;
 use std::fs::File;
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
@@ -7,8 +7,8 @@ use anyhow::{anyhow, Result};
 use inquire::Confirm;
 use shells::sh;
 
-use crate::cli::{Cli, Platform};
 use crate::{log, util};
+use crate::cli::{Cli, Platform};
 
 #[derive(Debug)]
 pub struct App {
@@ -51,6 +51,9 @@ impl App {
         self.copy_fastlane_files(&ignored_platforms)?;
         self.copy_github_workflow(&ignored_platforms)?;
         self.configure_platforms(&selected_platforms)?;
+        self.configure_dependencies()?;
+
+        log!("Done! You're ready to start building apps 🔨");
 
         Ok(())
     }
@@ -220,6 +223,30 @@ impl App {
         let mut file = File::create(dst)?;
         for line in output {
             writeln!(file, "{line}")?;
+        }
+
+        Ok(())
+    }
+
+    fn configure_dependencies(&self) -> Result<()> {
+        log!("Installing bundle dependencies and fastlane plugins");
+
+        let dst = self.cli.get_destination()?;
+        let dst = dst.display();
+
+        let (code, _, _) = sh!("cd {dst} && bundle install");
+        if code != 0 {
+            return Err(anyhow!("Failed to execute 'bundle install'"));
+        }
+
+        let (code, _, _) = sh!("cd {dst} && bundle exec fastlane install_plugins");
+        if code != 0 {
+            return Err(anyhow!("Failed to install fastlane plugins"));
+        }
+
+        let (code, _, _) = sh!("cd {dst} && bundle update fastlane-plugin-ravn_mobile");
+        if code != 0 {
+            return Err(anyhow!("Failed to update fastlane plugins"));
         }
 
         Ok(())
