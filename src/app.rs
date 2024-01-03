@@ -6,7 +6,7 @@ use inquire::Confirm;
 use shells::sh;
 
 use crate::cli::Cli;
-use crate::log;
+use crate::{log, util};
 
 #[derive(Debug)]
 pub struct App {
@@ -41,6 +41,7 @@ impl App {
 
         self.copy_fastlane_wrapper()?;
         self.copy_ruby_files()?;
+        self.copy_fastlane_files()?;
 
         Ok(())
     }
@@ -99,6 +100,57 @@ impl App {
         }
 
         std::fs::copy(src, &dst)?;
+
+        Ok(())
+    }
+
+    fn backup_fastlane_files(&self) -> Result<()> {
+        let dst = self.cli.get_destination()?;
+        if !dst.join("fastlane").exists() {
+            return Ok(());
+        }
+
+        let msg = if dst.join("fastlane.old").exists() {
+            "Found an existing backup, do you want to replace it with a new one?"
+        } else {
+            "Do you want to backup your existing fastlane configuration files?"
+        };
+
+        let answer = if self.cli.is_interactive() {
+            Confirm::new(msg)
+                .with_default(false)
+                .prompt()?
+        } else {
+            false
+        };
+
+        if !answer {
+            return Ok(());
+        }
+
+        let src = dst.join("fastlane");
+        let dst = dst.join("fastlane.old");
+        util::fs::copy_recursively(src, dst)?;
+
+        Ok(())
+    }
+
+    fn copy_fastlane_files(&self) -> Result<()> {
+        if self.cli.is_interactive() {
+            let answer = Confirm::new("Copy fastlane configuration files?")
+                .with_default(true)
+                .prompt()?;
+
+            if !answer {
+                return Ok(());
+            }
+        }
+
+        self.backup_fastlane_files()?;
+
+        let src = self.repo_dir.join("fastlane");
+        let dst = self.cli.get_destination()?.join("fastlane");
+        util::fs::copy_recursively(src, dst)?;
 
         Ok(())
     }
