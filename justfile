@@ -11,7 +11,7 @@ release-macos-x86:
 
 release-macos: release-macos-arm release-macos-x86
   mkdir -p build
-  lipo -create -output build/installer \
+  lipo -create -output build/installer-macos \
     target/aarch64-apple-darwin/release/ravn-mobile-cicd-installer \
     target/x86_64-apple-darwin/release/ravn-mobile-cicd-installer
 
@@ -22,7 +22,11 @@ install-cross:
 [macos]
 release-linux: install-cross
   cross build --release --target x86_64-unknown-linux-musl
+  mkdir -p build
+  cp target/x86_64-unknown-linux-musl/release/ravn-mobile-cicd-installer build/installer-linux
 
 [linux]
 release-linux:
   cargo build --release --target x86_64-unknown-linux-musl
+
+
