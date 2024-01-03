@@ -30,3 +30,37 @@ pub mod fs {
         Ok(())
     }
 }
+
+pub mod io {
+    use std::io::Write;
+    use std::fs::File;
+    use std::path::Path;
+    use anyhow::Result;
+
+    pub fn remove_region(path: impl AsRef<Path>, region: &str) -> Result<()> {
+        let contents = std::io::read_to_string(File::open(path.as_ref())?)?;
+        let mut output = Vec::new();
+        let mut skip = false;
+
+        for line in contents.lines() {
+            if line.contains(&format!("# region {region}")) {
+                skip = true
+            }
+
+            if !skip {
+                output.push(line);
+            }
+
+            if line.contains(&format!("# endregion {region}")) {
+                skip = false
+            }
+        }
+
+        let mut file = File::create(path.as_ref())?;
+        for line in output {
+            writeln!(file, "{line}")?;
+        }
+
+        Ok(())
+    }
+}
