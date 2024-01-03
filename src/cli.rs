@@ -42,24 +42,31 @@ impl Platform {
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = None)]
 pub struct Cli {
+    /// The installer will run in interactive mode with prompts for each of the configurable steps
     #[arg(short, long)]
     interactive: bool,
 
+    /// The path of your project, defaults to the current directory
     #[arg(short, long)]
     destination: Option<PathBuf>,
 
+    /// Platforms to configure
     #[arg(short, long, value_enum)]
     platform: Option<Platform>,
 
+    /// Whether or not to skip copying fastlane configuration files
     #[arg(long)]
     skip_fastlane: bool,
 
+    /// Whether or not to copy the GitHub main workflow
     #[arg(long)]
     copy_github_workflow: bool,
 
+    /// Whether or not your project uses Cocoapods
     #[arg(long)]
     uses_cocoapods: bool,
 
+    /// If enabled, overwrites most of the configuration files that are enabled to copy
     #[arg(short, long)]
     force_copy: bool,
 }
