@@ -1,11 +1,11 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
 use anyhow::{anyhow, Result};
 use inquire::Confirm;
 use shells::sh;
 
-use crate::cli::Cli;
+use crate::cli::{Cli, Platform};
 use crate::{log, util};
 
 #[derive(Debug)]
@@ -37,11 +37,16 @@ impl App {
         self.download_repo()?;
 
         // Ask first, better UX
-        let platforms = self.cli.get_platforms()?;
+        let selected_platforms = self.cli.get_platforms()?;
+        let ignored_platforms: Vec<_> = Platform::All
+            .as_platforms()
+            .into_iter()
+            .filter(|p| !selected_platforms.contains(p))
+            .collect();
 
         self.copy_fastlane_wrapper()?;
         self.copy_ruby_files()?;
-        self.copy_fastlane_files()?;
+        self.copy_fastlane_files(&ignored_platforms)?;
 
         Ok(())
     }
@@ -136,22 +141,29 @@ impl App {
         Ok(())
     }
 
-    fn copy_fastlane_files(&self) -> Result<()> {
-        if self.cli.is_interactive() {
-            let answer = Confirm::new("Copy fastlane configuration files?")
-                .with_default(true)
-                .prompt()?;
-
-            if !answer {
-                return Ok(());
+    fn remove_platform_regions(&self, paths: &[impl AsRef<Path>], platforms: &[Platform]) -> Result<()> {
+        for platform_to_remove in platforms {
+            for path in paths {
+                util::io::remove_region(path, &platform_to_remove.name())?;
             }
+        }
+
+        Ok(())
+    }
+
+    fn copy_fastlane_files(&self, ignored_platforms: &[Platform]) -> Result<()> {
+        if !self.cli.should_copy_fastlane()? {
+            return Ok(());
         }
 
         self.backup_fastlane_files()?;
 
         let src = self.repo_dir.join("fastlane");
         let dst = self.cli.get_destination()?.join("fastlane");
-        util::fs::copy_recursively(src, dst)?;
+        util::fs::copy_recursively(src, &dst)?;
+
+        let paths = vec![dst.join("Appfile"), dst.join("Fastfile")];
+        self.remove_platform_regions(&paths, ignored_platforms)?;
 
         Ok(())
     }
