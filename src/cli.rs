@@ -21,11 +21,21 @@ pub enum Platform {
 }
 
 impl Platform {
-    fn as_platforms(self) -> Vec<Platform> {
+    pub fn as_platforms(self) -> Vec<Platform> {
         match self {
             Platform::All => vec![Platform::Android, Platform::Ios],
             platform => vec![platform]
         }
+    }
+
+    pub fn name(&self) -> String {
+        let name = match self {
+            Platform::Android => "android",
+            Platform::Ios => "ios",
+            Platform::All => "all",
+        };
+
+        name.to_string()
     }
 }
 
